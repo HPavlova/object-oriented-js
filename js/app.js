@@ -1,35 +1,30 @@
-window.gameRowsNumber = prompt("Enter the number of rows to play", 9);
-window.gameColsNumber = prompt("Enter the number of columns to play", 6);
+window.gameRowsNumber = prompt(
+  "Enter the number of rows to play no more than 9",
+  9
+);
+window.gameColsNumber = prompt(
+  "Enter the number of columns to play no more than 6",
+  6
+);
 
-const TILE_HEIGHT = 60;
-const TILE_WIDTH = 90;
+const TILE_HEIGHT = 83;
+const TILE_WIDTH = 101;
 const ROWS_NUMBER = window.gameRowsNumber;
 const COLS_NUMBER = window.gameColsNumber;
 const canvas_height = TILE_HEIGHT * ROWS_NUMBER;
 const canvas_width = TILE_WIDTH * COLS_NUMBER;
 
-// Enemies our player must avoid
 var Enemy = function () {
-  // Variables applied to each of our instances go here,
-  // we've provided one for you to get started
   this.height = 45;
   this.width = 72;
   this.enemiesNumber = ROWS_NUMBER - 3;
   this.x = 0 - this.width;
   this.y = Math.random() * (canvas_height - this.height) + this.height;
   this.speed = Math.random() * 300 + 100;
-  this.enemies = [];
-  // The image/sprite for our enemies, this uses
-  // a helper we've provided to easily load images
   this.sprite = "images/enemy-bug.png";
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function (dt) {
-  // You should multiply any movement by the dt parameter
-  // which will ensure the game runs at the same speed for
-  // all computers.
   this.checkCollisions();
 
   if (this.x >= canvas_width) {
@@ -38,38 +33,24 @@ Enemy.prototype.update = function (dt) {
   this.x += this.speed * dt;
 };
 
-// Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function () {
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 const createEnimies = function (
-  { enemiesNumber, y, speed, enemies },
-  tileHeight,
-  tileWidth
+  { enemiesNumber, y},
+  tileHeight
 ) {
   for (let i = 0; i < enemiesNumber; i++) {
-    enemies.push({});
-    enemies[i].y = y + tileHeight * i;
-    enemies[i].speed = speed;
+    allEnemies.push(new Enemy());
+    allEnemies[i].y = y + tileHeight * i;
   }
-
-  enemies.forEach((e) => {
-    allEnemies.push(e);
-  });
 };
-
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
 
 var Player = function () {
   this.height = 45;
   this.width = 45;
-  this.x = () =>
-    COLS_NUMBER % 2 != 0
-      ? TILE_WIDTH * Math.floor(COLS_NUMBER / 2)
-      : canvas_width - TILE_WIDTH;
+  this.x = (canvas_width - TILE_WIDTH) / 2;
   this.y = TILE_HEIGHT * (ROWS_NUMBER - 1.5);
   this.sprite = "images/char-boy.png";
 };
@@ -118,15 +99,10 @@ Player.prototype.handleInput = function (key) {
   }
 };
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
-
 let player = new Player();
 
 let allEnemies = [];
-createEnimies(new Enemy(), TILE_HEIGHT, TILE_WIDTH);
-console.log("allEnemies:", allEnemies);
+createEnimies(new Enemy(), TILE_HEIGHT);
 
 function finish() {
   score++;
@@ -157,8 +133,6 @@ function collision(first, second) {
   );
 }
 
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
 document.addEventListener("keyup", function (e) {
   var allowedKeys = {
     37: "left",
