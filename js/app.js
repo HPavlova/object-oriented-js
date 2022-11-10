@@ -13,13 +13,14 @@ const ROWS_NUMBER = window.gameRowsNumber;
 const COLS_NUMBER = window.gameColsNumber;
 const canvas_height = TILE_HEIGHT * ROWS_NUMBER;
 const canvas_width = TILE_WIDTH * COLS_NUMBER;
+let score = 0;
 
 var Enemy = function () {
   this.height = 45;
   this.width = 72;
   this.enemiesNumber = ROWS_NUMBER - 3;
   this.x = 0 - this.width;
-  this.y = Math.random() * (canvas_height - this.height) + this.height;
+  this.y = TILE_HEIGHT * 0.75;
   this.speed = Math.random() * 300 + 100;
   this.sprite = "images/enemy-bug.png";
 };
@@ -37,10 +38,7 @@ Enemy.prototype.render = function () {
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-const createEnimies = function (
-  { enemiesNumber, y},
-  tileHeight
-) {
+const createEnimies = function ({ enemiesNumber, y }, tileHeight) {
   for (let i = 0; i < enemiesNumber; i++) {
     allEnemies.push(new Enemy());
     allEnemies[i].y = y + tileHeight * i;
@@ -56,26 +54,29 @@ var Player = function () {
 };
 
 Player.prototype.resetPlayerPosition = function ({ x, y }) {
-  this.x = x;
-  this.y = y;
+  player.x = x;
+  player.y = y;
 };
 
 Player.prototype.update = function () {
   if (this.y < 0) {
     setTimeout(() => {
-      this.resetPlayerPosition(Player);
+      player.resetPlayerPosition(new Player());
     }, 200);
   }
 };
 
 Player.prototype.render = function () {
   ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+  scoreBoard();
 };
 
 Player.prototype.handleInput = function (key) {
   switch (key) {
     case "up":
-      if (this.y > 0) {
+      if (this.y < TILE_HEIGHT) {
+        finish();
+      } else if (this.y > 0) {
         this.y -= TILE_HEIGHT;
       }
       break;
@@ -99,6 +100,14 @@ Player.prototype.handleInput = function (key) {
   }
 };
 
+function scoreBoard() {
+  ctx.font = "bold 40px serif";
+  ctx.strokeStyle = "black";
+  ctx.fillStyle = "grey";
+  ctx.strokeText("Score:", 0, 30);
+  ctx.fillText(score, 120, 33);
+}
+
 let player = new Player();
 
 let allEnemies = [];
@@ -106,14 +115,14 @@ createEnimies(new Enemy(), TILE_HEIGHT);
 
 function finish() {
   score++;
-  Player.resetPlayerPosition(Player);
+  player.resetPlayerPosition(new Player());
 }
 
 function lost() {
   if (score !== 0) {
     score--;
   }
-  Player.resetPlayerPosition(Player);
+  player.resetPlayerPosition(new Player());
 }
 
 Enemy.prototype.checkCollisions = function () {
